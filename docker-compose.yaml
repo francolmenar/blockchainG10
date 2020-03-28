@@ -27,10 +27,10 @@ services:
       "
     stop_signal: SIGKILL
 
-  intkey-tp-python:
+  intkey-tp-python:  # Not included in our implementation
     build:
       context: .
-      dockerfile: examples/intkey_python/Dockerfile
+      dockerfile: intkey_python/Dockerfile
       args:
         - http_proxy
         - https_proxy
@@ -55,7 +55,7 @@ services:
   xo-tp-python:
     build:
       context: .
-      dockerfile: examples/xo_python/Dockerfile
+      dockerfile: xo_python/Dockerfile
       args:
         - http_proxy
         - https_proxy
