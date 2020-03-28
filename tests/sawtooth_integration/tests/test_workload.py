@@ -20,7 +20,7 @@ import subprocess
 import shlex
 
 from sawtooth_cli.rest_client import RestClient
-from sawtooth_integration.tests.integration_tools import wait_for_rest_apis
+from tests.sawtooth_integration.tests.integration_tools import wait_for_rest_apis
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)

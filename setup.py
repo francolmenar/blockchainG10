@@ -47,5 +47,5 @@ setup(
         "pyzmq",
         "secp256k1",
         "toml",
-        "PyYAML",
+        "PyYAML", 'grpc', 'requests', 'cbor'
     ])

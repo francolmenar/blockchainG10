@@ -28,7 +28,7 @@ from base64 import b64decode
 import cbor
 
 from sawtooth_intkey.intkey_message_factory import IntkeyMessageFactory
-from sawtooth_integration.tests.integration_tools import wait_for_rest_apis
+from tests.sawtooth_integration.tests.integration_tools import wait_for_rest_apis
 
 
 LOGGER = logging.getLogger(__name__)

@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
     ))
 
-from sawtooth_intkey.client_cli.intkey_cli import main_wrapper
+from sawtooth_intkey.client_cli.intkey_cli import main_wrapper  # Not used in our project
 
 if __name__ == '__main__':
     main_wrapper()
