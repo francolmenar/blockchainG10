@@ -28,28 +28,11 @@ services:
     stop_signal: SIGKILL
 
   intkey-tp-python:  # Not included in our implementation
-    build:
-      context: .
-      dockerfile: intkey_python/Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: intkey-tp-python-local:${ISOLATION_ID}
-    volumes:
-      - ./:/project/sawtooth-sdk-python
-    container_name: intkey-tp-python-local
+    image: hyperledger/sawtooth-intkey-tp-python:chime
+    container_name: sawtooth-intkey-tp-python-default
     depends_on:
       - validator
-    command: |
-      bash -c "
-        bin/protogen
-        cd examples/intkey_python
-        python3 setup.py clean --all
-        python3 setup.py build
-        intkey-tp-python -vv -C tcp://validator:4004
-      "
-    stop_signal: SIGKILL
+    entrypoint: intkey-tp-python -vv -C tcp://validator:4004
 
 
   xo-tp-python:
@@ -69,7 +52,7 @@ services:
     command: |
       bash -c "
         bin/protogen
-        cd examples/xo_python
+        cd xo_python
         python3 setup.py clean --all
         python3 setup.py build
         xo-tp-python -vv -C tcp://validator:4004
@@ -77,7 +60,7 @@ services:
     stop_signal: SIGKILL
 
 
-  client:
+  client:  # Also called shell
     image: hyperledger/sawtooth-shell:nightly
     container_name: sawtooth-shell
     depends_on:

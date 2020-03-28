@@ -47,7 +47,7 @@ class XoTransactionHandler(TransactionHandler):
         """
         Deconstruct the transaction and trigger the needed actions
         """
-
+        print("Ajá")
         header = transaction.header  # Set the header of the transaction
         signer = header.signer_public_key  # Set the Public Key of the Signer
 

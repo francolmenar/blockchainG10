@@ -19,8 +19,8 @@ services:
 
   xo-tp-python:
     build:
-      context: ../../..
-      dockerfile: ./examples/xo_python/Dockerfile
+      context: ../..
+      dockerfile: ./xo_python/Dockerfile
       args:
         - http_proxy
         - https_proxy
@@ -35,7 +35,7 @@ services:
 
   test-tp-xo-python:
     build:
-      context: ../../..
+      context: ../..
       dockerfile: tests/python-sdk-tests.dockerfile
       args:
         - http_proxy

@@ -52,6 +52,6 @@ WORKDIR /project/sawtooth-sdk-python
 
 CMD echo "\033[0;32m--- Building xo-tp-python ---\n\033[0m" \
  && bin/protogen \
- && cd examples/xo_python \
+ && cd xo_python \
  && python3 setup.py clean --all \
  && python3 setup.py build

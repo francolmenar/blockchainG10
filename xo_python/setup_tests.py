@@ -26,7 +26,7 @@ data_files = []
 if os.path.exists("tests"):
     data_files.append(('/data/tests/xo', ['tests/test_tp_xo.py']))
     data_files.append(('/data/tests/xo', [
-        '../../tests/sawtooth_integration/tests/test_xo_smoke.py']))
+        '../tests/sawtooth_integration/tests/test_xo_smoke.py']))
 
 try:
     os.environ["ST_VERSION"]
@@ -35,7 +35,7 @@ try:
 except KeyError:
     print('ST_VERSION not set. Using get_version')
     VERSION = subprocess.check_output(
-        ['../../bin/get_version']).decode('utf-8').strip()
+        ['../bin/get_version']).decode('utf-8').strip()
 
 setup(
     name='sawtooth-xo-tests',
