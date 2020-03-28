@@ -16,10 +16,10 @@ version: '3.6'
 
 services:
 
-  intkey-tp-python:  # Not included in our implementation
+  intkey-tp-python:
     build:
       context: .
-      dockerfile: intkey_python/Dockerfile-installed-${DISTRO}
+      dockerfile: examples/intkey_python/Dockerfile-installed-${DISTRO}
       args:
         - http_proxy
         - https_proxy
@@ -33,7 +33,7 @@ services:
   xo-tp-python:
     build:
       context: .
-      dockerfile: xo_python/Dockerfile-installed-${DISTRO}
+      dockerfile: examples/xo_python/Dockerfile-installed-${DISTRO}
       args:
         - http_proxy
         - https_proxy
@@ -55,10 +55,10 @@ services:
     image: sawtooth-sdk-python:${ISOLATION_ID}
     container_name: sawtooth-sdk-python-default
 
-  intkey-tests:  # Not included in our implementation
+  intkey-tests:
     build:
       context: .
-      dockerfile: intkey_python/Dockerfile-tests-installed
+      dockerfile: examples/intkey_python/Dockerfile-tests-installed
       args:
         - http_proxy
         - https_proxy
@@ -69,7 +69,7 @@ services:
   xo-tests:
     build:
       context: .
-      dockerfile: xo_python/Dockerfile-tests-installed
+      dockerfile: examples/xo_python/Dockerfile-tests-installed
       args:
         - http_proxy
         - https_proxy

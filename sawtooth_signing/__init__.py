@@ -13,6 +13,8 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 from sawtooth_signing.core import NoSuchAlgorithmError
+from sawtooth_signing.core import ParseError
+from sawtooth_signing.core import SigningError
 
 from sawtooth_signing.secp256k1 import Secp256k1Context
 

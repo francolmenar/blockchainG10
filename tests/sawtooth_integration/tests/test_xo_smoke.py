@@ -19,8 +19,8 @@ import logging
 import unittest
 import subprocess
 
-from tests.sawtooth_integration.tests.integration_tools import XoClient
-from tests.sawtooth_integration.tests.integration_tools import wait_for_rest_apis
+from sawtooth_integration.tests.integration_tools import XoClient
+from sawtooth_integration.tests.integration_tools import wait_for_rest_apis
 
 
 LOGGER = logging.getLogger(__name__)

@@ -22,6 +22,7 @@ import re
 import subprocess
 import sys
 
+
 try:
     from grpc.tools.protoc import main as _protoc
 except ImportError:

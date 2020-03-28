@@ -20,12 +20,12 @@ import random
 from sawtooth_signing import create_context
 from sawtooth_signing import CryptoFactory
 
-from protobuf.processor_pb2 import TpRegisterRequest
-from protobuf.processor_pb2 import TpProcessResponse
-from protobuf.processor_pb2 import TpProcessRequest
+from sawtooth_sdk.protobuf.processor_pb2 import TpRegisterRequest
+from sawtooth_sdk.protobuf.processor_pb2 import TpProcessResponse
+from sawtooth_sdk.protobuf.processor_pb2 import TpProcessRequest
 
-from protobuf.transaction_pb2 import Transaction
-from protobuf.transaction_pb2 import TransactionHeader
+from sawtooth_sdk.protobuf.transaction_pb2 import Transaction
+from sawtooth_sdk.protobuf.transaction_pb2 import TransactionHeader
 
 from sawtooth_sdk.protobuf.batch_pb2 import Batch
 from sawtooth_sdk.protobuf.batch_pb2 import BatchList
