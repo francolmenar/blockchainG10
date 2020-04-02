@@ -44,6 +44,20 @@ services:
       - validator
     entrypoint: xo-tp-python -vv -C tcp://validator:4004
 
+  cert-tp-python:
+    build:
+      context: .
+      dockerfile: examples/cert_python/Dockerfile-installed-${DISTRO}
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: sawtooth-cert-tp-python:${ISOLATION_ID}
+    container_name: sawtooth-cert-tp-python-default
+    depends_on:
+      - validator
+    entrypoint: cert-tp-python -vv -C tcp://validator:4004
+
   python-sdk:
     build:
       context: .

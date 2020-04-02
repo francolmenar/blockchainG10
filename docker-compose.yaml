@@ -76,6 +76,30 @@ services:
       "
     stop_signal: SIGKILL
 
+  cert-tp-python:
+    build:
+      context: .
+      dockerfile: examples/cert_python/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: cert-tp-python-local:${ISOLATION_ID}
+    volumes:
+      - ./:/project/sawtooth-sdk-python
+    container_name: cert-tp-python-local
+    depends_on:
+      - validator
+    command: |
+      bash -c "
+        bin/protogen
+        cd examples/cert_python
+        python3 setup.py clean --all
+        python3 setup.py build
+        cert-tp-python -vv -C tcp://validator:4004
+      "
+    stop_signal: SIGKILL
+
 
   client:
     image: hyperledger/sawtooth-shell:nightly

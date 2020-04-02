@@ -34,6 +34,15 @@ services:
         cp /tmp/*.deb /build/debs
       "
 
+  cert-tp-python:
+    image: sawtooth-cert-tp-python:${ISOLATION_ID}
+    volumes:
+      - ../../build/debs:/build/debs
+    command: |
+      bash -c "
+        cp /tmp/*.deb /build/debs
+      "
+
   python-sdk:
     image: sawtooth-sdk-python:${ISOLATION_ID}
     volumes:
@@ -54,6 +63,15 @@ services:
 
   xo-tests:
     image: sawtooth-xo-tests:${ISOLATION_ID}
+    volumes:
+      - ../../build/debs:/build/debs
+    command: |
+      bash -c "
+        cp /tmp/*.deb /build/debs
+      "
+
+  cert-tests:
+    image: sawtooth-cert-tests:${ISOLATION_ID}
     volumes:
       - ../../build/debs:/build/debs
     command: |
