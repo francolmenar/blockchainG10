@@ -536,7 +536,7 @@ def main(prog_name=os.path.basename(sys.argv[0]), args=None):
     elif args.command == 'delete':
         do_delete(args)
     else:
-        raise XoException("invalid command: {}".format(args.command))
+        raise CertException("invalid command: {}".format(args.command))
 
 
 def main_wrapper():
