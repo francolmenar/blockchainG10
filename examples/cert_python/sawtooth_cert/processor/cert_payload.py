@@ -15,6 +15,7 @@
 
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 import json
+import base64
 
 CERT_FIELDS = ['issuedName', 'dateIssued', 'dateExpired', 'level', 'certificateName', 'issuerName']
 
@@ -28,7 +29,7 @@ class CertPayload:
         try:
             # The payload is csv utf-8 encoded string
             # Separate the original String command into the variables to create the PayLoad
-            action, identifier, certificate = payload.decode().split(",")
+            action, identifier, certificate_encoded = payload.decode().split(",")
         except ValueError:
             raise InvalidTransaction("Invalid payload serialization")
 
@@ -51,7 +52,7 @@ class CertPayload:
         if action == 'create':
             # If action create check that the certificate is valid
             try:
-                json_certificate = json.loads(certificate)
+                json_certificate = json.loads(base64.b64decode(certificate_encoded))
             except json.JSONDecodeError:
                 raise InvalidTransaction('Certificate not valid')
 
