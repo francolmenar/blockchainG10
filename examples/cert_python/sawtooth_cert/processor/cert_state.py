@@ -20,31 +20,32 @@ from sawtooth_sdk.processor.exceptions import InternalError
 CERT_NAMESPACE = hashlib.sha512('cert'.encode("utf-8")).hexdigest()[0:6]
 
 
-def _make_cert_address(name):
+def _make_cert_address(identifier):
     """
-    Create the specific Address for the CERT Game - It can be reused -
+    Create the specific Address for the Certificate - It can be reused -
     """
-    return CERT_NAMESPACE + \
-           hashlib.sha512(name.encode('utf-8')).hexdigest()[:64]
+    return CERT_NAMESPACE + hashlib.sha512(identifier.encode('utf-8')).hexdigest()[:64]
 
 
-class Game:
+class Certificate:
     """
     Data Structure that holds the data for the Game Status
     """
-    def __init__(self, name, board, state, player1, player2):
-        self.name = name
-        self.board = board
-        self.state = state
-        self.player1 = player1
-        self.player2 = player2
+    def __init__(self, identifier, issuedName, dateIssued, dateExpired, level, certificateName, issuerName):
+        self.identifier = identifier
+        self.issuedName = issuedName
+        self.dateIssued = dateIssued
+        self.dateExpired = dateExpired
+        self.level = level
+        self.certificateName = certificateName
+        self.issuerName = issuerName
 
 
 class CertState:
     """
-    State which holds a context ?????????
+    State which holds a context
 
-    Manages the actions regarding the Game State
+    Manages the actions regarding the Certificate State
         - Delete
         - Set
         - Get
@@ -66,54 +67,47 @@ class CertState:
         self._context = context
         self._address_cache = {}
 
-    def delete_game(self, game_name):
-        """Delete the Game named game_name from state.
+    def delete_certificate(self, identifier):
+        """Delete the certificate named game_name from state.
 
         Args:
-            game_name (str): The name.
+            identifier (str): The certificate identifier.
 
         Raises:
             KeyError: The Game with game_name does not exist.
         """
+        raise NotImplemented('Delete certificate not implemented yet')
 
-        games = self._load_games(game_name=game_name)
-
-        del games[game_name]
-        if games:
-            self._store_game(game_name, games=games)
-        else:
-            self._delete_game(game_name)
-
-    def set_game(self, game_name, game):
-        """Store the game in the validator state.
+    def set_certificate(self, identifier, certificate):
+        """Store the certificate in the validator state.
 
         Args:
-            game_name (str): The name.
-            game (Game): The information specifying the current game.
+            identifier (str): The identifier.
+            certificate (Certificate): The information specifying the current certificate.
         """
 
-        games = self._load_games(game_name=game_name)
+        certificates = self._load_certificates(identifier=identifier)
 
-        games[game_name] = game
+        certificates[identifier] = certificate
 
-        self._store_game(game_name, games=games)
+        self._store_certificate(identifier, certificates=certificates)
 
-    def get_game(self, game_name):
-        """Get the game associated with game_name.
+    def get_certificate(self, identifier):
+        """Get the certificate associated with issuedName.
 
         Args:
-            game_name (str): The name.
+            identifier (str): The identifier.
 
         Returns:
-            (Game): All the information specifying a game.
+            (Certificate): All the information specifying a certificate.
         """
 
-        return self._load_games(game_name=game_name).get(game_name)
+        return self._load_certificates(identifier=identifier).get(identifier)
 
-    def _store_game(self, game_name, games):
-        address = _make_cert_address(game_name)
+    def _store_certificate(self, identifier, certificates):
+        address = _make_cert_address(identifier)
 
-        state_data = self._serialize(games)
+        state_data = self._serialize(certificates)
 
         self._address_cache[address] = state_data
 
@@ -121,8 +115,8 @@ class CertState:
             {address: state_data},
             timeout=self.TIMEOUT)
 
-    def _delete_game(self, game_name):
-        address = _make_cert_address(game_name)
+    def _delete_certificate(self, identifier):
+        address = _make_cert_address(identifier)
 
         self._context.delete_state(
             [address],
@@ -130,15 +124,15 @@ class CertState:
 
         self._address_cache[address] = None
 
-    def _load_games(self, game_name):
-        address = _make_cert_address(game_name)
+    def _load_certificates(self, identifier):
+        address = _make_cert_address(identifier)
 
         if address in self._address_cache:
             if self._address_cache[address]:
-                serialized_games = self._address_cache[address]
-                games = self._deserialize(serialized_games)
+                serialized_certificates = self._address_cache[address]
+                certificates = self._deserialize(serialized_certificates)
             else:
-                games = {}
+                certificates = {}
         else:
             state_entries = self._context.get_state(
                 [address],
@@ -147,15 +141,16 @@ class CertState:
 
                 self._address_cache[address] = state_entries[0].data
 
-                games = self._deserialize(data=state_entries[0].data)
+                certificates = self._deserialize(data=state_entries[0].data)
 
             else:
                 self._address_cache[address] = None
-                games = {}
+                certificates = {}
 
-        return games
+        return certificates
 
-    def _deserialize(self, data):
+    @staticmethod
+    def _deserialize(data):
         """Take bytes stored in state and deserialize them into Python
         Game objects.
 
@@ -163,34 +158,35 @@ class CertState:
             data (bytes): The UTF-8 encoded string stored in state.
 
         Returns:
-            (dict): game name (str) keys, Game values.
+            (dict): certificate name (str) keys, Game values.
         """
 
-        games = {}
+        certificates = {}
         try:
-            for game in data.decode().split("|"):
-                name, board, state, player1, player2 = game.split(",")
+            for certificate in data.decode().split("|"):
+                identifier, issuedName, dateIssued, dateExpired, level, certificateName, issuerName = certificate.split(",")
 
-                games[name] = Game(name, board, state, player1, player2)
+                certificates[identifier] = Certificate(identifier, issuedName, dateIssued, dateExpired, level, certificateName, issuerName)
         except ValueError:
-            raise InternalError("Failed to deserialize game data")
+            raise InternalError("Failed to deserialize certificate data")
 
-        return games
+        return certificates
 
-    def _serialize(self, games):
+    @staticmethod
+    def _serialize(certificates):
         """Takes a dict of game objects and serializes them into bytes.
 
         Args:
-            games (dict): game name (str) keys, Game values.
+            certificates (dict): certificate
 
         Returns:
             (bytes): The UTF-8 encoded string stored in state.
         """
 
-        game_strs = []
-        for name, g in games.items():
-            game_str = ",".join(
-                [name, g.board, g.state, g.player1, g.player2])
-            game_strs.append(game_str)
+        certificate_strs = []
+        for identifier, c in certificates.items():
+            certificate_str = ",".join(
+                [identifier, c.issuedName, c.dateIssued, c.dateExpired, c.level, c.certificateName, c.issuerName])
+            certificate_strs.append(certificate_str)
 
-        return "|".join(sorted(game_strs)).encode()
+        return "|".join(sorted(certificate_strs)).encode()

@@ -14,6 +14,9 @@
 # -----------------------------------------------------------------------------
 
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
+import json
+
+CERT_FIELDS = ['issuedName', 'dateIssued', 'dateExpired', 'level', 'certificateName', 'issuerName']
 
 
 class CertPayload:
@@ -25,54 +28,85 @@ class CertPayload:
         try:
             # The payload is csv utf-8 encoded string
             # Separate the original String command into the variables to create the PayLoad
-            name, action, space = payload.decode().split(",")
+            action, identifier, certificate = payload.decode().split(",")
         except ValueError:
             raise InvalidTransaction("Invalid payload serialization")
 
-        # Check for errors in the variables
-        if not name:
-            raise InvalidTransaction('Name is required')
+        certificate_values = dict()
+        json_certificate = None
 
-        if '|' in name:
-            raise InvalidTransaction('Name cannot contain "|"')
+        # Check for errors in the variables
+        if not identifier:
+            raise InvalidTransaction('Identifier is required')
 
         if not action:
             raise InvalidTransaction('Action is required')
 
-        if action not in ('create', 'take', 'delete'):
+        if action not in ('create', 'edit', 'delete'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
-        # Special cases for the action take
-        if action == 'take':
+        if action != 'create':
+            raise InvalidTransaction('Only create action is supported')
+
+        if action == 'create':
+            # If action create check that the certificate is valid
             try:
+                json_certificate = json.loads(certificate)
+            except json.JSONDecodeError:
+                raise InvalidTransaction('Certificate not valid')
 
-                if int(space) not in range(1, 10):
-                    raise InvalidTransaction(
-                        "Space must be an integer from 1 to 9")
-            except ValueError:
-                raise InvalidTransaction(
-                    'Space must be an integer from 1 to 9')
+            # Check that it has every field
+            for key in CERT_FIELDS:
+                if json_certificate.get(key) is None:
+                    raise InvalidTransaction('Certificate not valid')
 
-        if action == 'take':
-            space = int(space)
+        if json_certificate:
+            for key in CERT_FIELDS:
+                certificate_values[key] = json_certificate.get(key)
 
         # Store the values into the variables of the PayLoad object
-        self._name = name
+        self._identifier = identifier
         self._action = action
-        self._space = space
+        self._issuedName = certificate_values.get('issuedName', '')
+        self._dateIssued = certificate_values.get('dateIssued', '')
+        self._dateExpired = certificate_values.get('dateExpired', '')
+        self._level = certificate_values.get('level', '')
+        self._certificateName = certificate_values.get('certificateName', '')
+        self._issuerName = certificate_values.get('issuerName', '')
 
     @staticmethod
     def from_bytes(payload):
         return CertPayload(payload=payload)
 
     @property
-    def name(self):
-        return self._name
+    def identifier(self):
+        return self._identifier
 
     @property
     def action(self):
         return self._action
 
     @property
-    def space(self):
-        return self._space
+    def issuedName(self):
+        return self._issuedName
+
+    @property
+    def dateIssued(self):
+        return self._dateIssued
+
+    @property
+    def dateExpired(self):
+        return self._dateExpired
+
+    @property
+    def level(self):
+        return self._level
+
+    @property
+    def certificateName(self):
+        return self._certificateName
+
+    @property
+    def issuerName(self):
+        return self._issuerName
+
