@@ -73,36 +73,38 @@ class CertClient:
         self._signer = CryptoFactory(create_context('secp256k1')) \
             .new_signer(private_key)  # Set the signer using the Private Key
 
-    def create(self, name, wait=None, auth_user=None, auth_password=None):
+    def create(self, identifier, certificate="e30=", wait=None, auth_user=None, auth_password=None):
         """
         Set the arguments for calling _send_cert_txn for Create
         """
         return self._send_cert_txn(
-            name,
-            "create",
+            identifier=identifier,
+            action="create",
+            certificate=certificate,
             wait=wait,
             auth_user=auth_user,
             auth_password=auth_password)
 
-    def delete(self, name, wait=None, auth_user=None, auth_password=None):
+    def delete(self, identifier, certificate="e30=", wait=None, auth_user=None, auth_password=None):
         """
         Set the arguments for calling _send_cert_txn for Delete
         """
         return self._send_cert_txn(
-            name,
+            identifier,
             "delete",
+            certificate=certificate,
             wait=wait,
             auth_user=auth_user,
             auth_password=auth_password)
 
-    def take(self, name, space, wait=None, auth_user=None, auth_password=None):
+    def edit(self, identifier, certificate="e30=", wait=None, auth_user=None, auth_password=None):
         """
         Set the arguments for calling _send_cert_txn for Take
         """
         return self._send_cert_txn(
-            name,
-            "take",
-            space,
+            identifier,
+            "edit",
+            certificate=certificate,
             wait=wait,
             auth_user=auth_user,
             auth_password=auth_password)
@@ -111,7 +113,7 @@ class CertClient:
         """
         I'm not sure what it's happening, Some request is sent
         """
-        cert_prefix = self._get_prefix()  # Get the XO Prefix, Not sure if we need it for us
+        cert_prefix = self._get_prefix()  # Get the Cert Prefix, Not sure if we need it for us
 
         result = self._send_request(
             "state?address={}".format(cert_prefix),
@@ -128,15 +130,15 @@ class CertClient:
         except BaseException:
             return None
 
-    def show(self, name, auth_user=None, auth_password=None):
+    def show(self, identifier, auth_user=None, auth_password=None):
         """
         I'm not sure what it's happening, Some request is sent
         """
-        address = self._get_address(name)  # Get the Address
+        address = self._get_address(identifier)  # Get the Address
 
         result = self._send_request(
             "state/{}".format(address),
-            name=name,
+            identifier=identifier,
             auth_user=auth_user,
             auth_password=auth_password)  # Send the request
         try:
@@ -158,21 +160,22 @@ class CertClient:
         except BaseException as err:
             raise CertException(err)
 
-    def _get_prefix(self):
+    @staticmethod
+    def _get_prefix():
         """
         Get the prefix?????????
         """
         return _sha512('cert'.encode('utf-8'))[0:6]
 
-    def _get_address(self, name):
+    def _get_address(self, identifier):
         """
         Get the total address:     Prefix + Game Addr
         """
         cert_prefix = self._get_prefix()
-        game_address = _sha512(name.encode('utf-8'))[0:64]
-        return cert_prefix + game_address
+        certificate_address = _sha512(identifier.encode('utf-8'))[0:64]
+        return cert_prefix + certificate_address
 
-    def _send_request(self, suffix, data=None, content_type=None, name=None, auth_user=None, auth_password=None):
+    def _send_request(self, suffix, data=None, content_type=None, identifier=None, auth_user=None, auth_password=None):
         """
         Send the request
         """
@@ -198,7 +201,7 @@ class CertClient:
                 result = requests.get(url, headers=headers)
 
             if result.status_code == 404:  # Check the Result Status Code
-                raise CertException("No such game: {}".format(name))
+                raise CertException("No such certificate: {}".format(identifier))
 
             if not result.ok:
                 raise CertException("Error {}: {}".format(
@@ -213,12 +216,12 @@ class CertClient:
 
         return result.text
 
-    def _send_cert_txn(self, name, action, space="", wait=None, auth_user=None, auth_password=None):
+    def _send_cert_txn(self, identifier, action, certificate, wait=None, auth_user=None, auth_password=None):
         # Serialization is just a delimited utf-8 encoded string
-        payload = ",".join([name, action, str(space)]).encode()
+        payload = ",".join([action, identifier, str(certificate)]).encode()
 
         # Construct the address
-        address = self._get_address(name)
+        address = self._get_address(identifier)
 
         # Construct the Header
         header = TransactionHeader(

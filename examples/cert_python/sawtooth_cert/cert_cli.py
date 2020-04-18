@@ -80,16 +80,21 @@ def add_create_parser(subparsers, parent_parser):
     """
     parser = subparsers.add_parser(
         'create',
-        help='Creates a new cert game',
+        help='Creates a new certificate',
         description='Sends a transaction to start an cert game with the '
         'identifier <name>. This transaction will fail if the specified '
         'game already exists.',
         parents=[parent_parser])
 
     parser.add_argument(
-        'name',
+        'identifier',
         type=str,
-        help='unique identifier for the new game')
+        help='unique identifier for the new certificate')
+
+    parser.add_argument(
+        'certificate',
+        type=str,
+        help='certificate json data, b64 encoded')
 
     parser.add_argument(
         '--url',
@@ -138,9 +143,8 @@ def add_list_parser(subparsers, parent_parser):
     """
     parser = subparsers.add_parser(
         'list',
-        help='Displays information for all cert games',
-        description='Displays information for all cert games in state, showing '
-        'the players, the game state, and the board for each game.',
+        help='Displays information for all certificates',
+        description='Displays information for all certificates in state.',
         parents=[parent_parser])
 
     parser.add_argument(
@@ -174,15 +178,14 @@ def add_list_parser(subparsers, parent_parser):
 def add_show_parser(subparsers, parent_parser):
     parser = subparsers.add_parser(
         'show',
-        help='Displays information about an cert game',
-        description='Displays the cert game <name>, showing the players, '
-        'the game state, and the board',
+        help='Displays information about a certificate',
+        description='Displays the certificate <identifier>',
         parents=[parent_parser])
 
     parser.add_argument(
-        'name',
+        'identifier',
         type=str,
-        help='identifier for the game')
+        help='unique identifier for the new certificate')
 
     parser.add_argument(
         '--url',
@@ -214,23 +217,20 @@ def add_show_parser(subparsers, parent_parser):
 
 def add_take_parser(subparsers, parent_parser):
     parser = subparsers.add_parser(
-        'take',
-        help='Takes a space in an cert game',
-        description='Sends a transaction to take a square in the cert game '
-        'with the identifier <name>. This transaction will fail if the '
-        'specified game does not exist.',
+        'edit',
+        help='Edit a certificate',
+        description='Sends a transaction to edit a certificate',
         parents=[parent_parser])
 
     parser.add_argument(
-        'name',
+        'identifier',
         type=str,
-        help='identifier for the game')
+        help='unique identifier for the new certificate')
 
     parser.add_argument(
-        'space',
-        type=int,
-        help='number of the square to take (1-9); the upper-left space is '
-        '1, and the lower-right space is 9')
+        'certificate',
+        type=str,
+        help='certificate json data, b64 encoded')
 
     parser.add_argument(
         '--url',
@@ -272,9 +272,9 @@ def add_delete_parser(subparsers, parent_parser):
     parser = subparsers.add_parser('delete', parents=[parent_parser])
 
     parser.add_argument(
-        'name',
+        'identifier',
         type=str,
-        help='name of the game to be deleted')
+        help='unique identifier for the new certificate')
 
     parser.add_argument(
         '--url',
@@ -337,8 +337,7 @@ def create_parser(prog_name):
     parent_parser = create_parent_parser(prog_name)
 
     parser = argparse.ArgumentParser(
-        description='Provides subcommands to play tic-tac-toe (also known as '
-        'Noughts and Crosses) by sending XO transactions.',
+        description='Provides subcommands to send Cert transactions.',
         parents=[parent_parser])
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
@@ -363,21 +362,18 @@ def do_list(args):
 
     client = CertClient(base_url=url, keyfile=None)
 
-    game_list = [
-        game.split(',')
-        for games in client.list(auth_user=auth_user,
+    certificate_list = [
+        certificate.split(',')
+        for certificates in client.list(auth_user=auth_user,
                                  auth_password=auth_password)
-        for game in games.decode().split('|')
+        for certificate in certificates.decode().split('|')
     ]
 
-    if game_list is not None:
+    if certificate_list is not None:
         fmt = "%-15s %-15.15s %-15.15s %-9s %s"
         print(fmt % ('GAME', 'PLAYER 1', 'PLAYER 2', 'BOARD', 'STATE'))
-        for game_data in game_list:
-
-            name, board, game_state, player1, player2 = game_data
-
-            print(fmt % (name, player1[:6], player2[:6], board, game_state))
+        for certificate in certificate_list:
+            print(certificate)
     else:
         raise CertException("Could not retrieve game listing.")
 
@@ -386,45 +382,26 @@ def do_show(args):
     """
     Coordinate the calls for Show
     """
-    name = args.name
+    identifier = args.identifier
 
     url = _get_url(args)
     auth_user, auth_password = _get_auth_info(args)
 
     client = CertClient(base_url=url, keyfile=None)
 
-    data = client.show(name, auth_user=auth_user, auth_password=auth_password)
+    data = client.show(identifier, auth_user=auth_user, auth_password=auth_password)
 
     if data is not None:
-
-        board_str, game_state, player1, player2 = {
-            name: (board, state, player_1, player_2)
-            for name, board, state, player_1, player_2 in [
-                game.split(',')
-                for game in data.decode().split('|')
-            ]
-        }[name]
-
-        board = list(board_str.replace("-", " "))
-
-        print("GAME:     : {}".format(name))
-        print("PLAYER 1  : {}".format(player1[:6]))
-        print("PLAYER 2  : {}".format(player2[:6]))
-        print("STATE     : {}".format(game_state))
-        print("")
-        print("  {} | {} | {}".format(board[0], board[1], board[2]))
-        print(" ---|---|---")
-        print("  {} | {} | {}".format(board[3], board[4], board[5]))
-        print(" ---|---|---")
-        print("  {} | {} | {}".format(board[6], board[7], board[8]))
-        print("")
+        # Todo: improve this print
+        print(data)
 
     else:
-        raise CertException("Game not found: {}".format(name))
+        raise CertException("Game not found: {}".format(identifier))
 
 
 def do_create(args):
-    name = args.name
+    identifier = args.identifier
+    certificate = args.certificate
 
     url = _get_url(args)
     keyfile = _get_keyfile(args)
@@ -434,20 +411,20 @@ def do_create(args):
 
     if args.wait and args.wait > 0:
         response = client.create(
-            name, wait=args.wait,
+            identifier, certificate, wait=args.wait,
             auth_user=auth_user,
             auth_password=auth_password)
     else:
         response = client.create(
-            name, auth_user=auth_user,
+            identifier, certificate, auth_user=auth_user,
             auth_password=auth_password)
 
     print("Response: {}".format(response))
 
 
-def do_take(args):
-    name = args.name
-    space = args.space
+def do_edit(args):
+    identifier = args.identifier
+    certificate = args.certificate
 
     url = _get_url(args)
     keyfile = _get_keyfile(args)
@@ -457,12 +434,12 @@ def do_take(args):
 
     if args.wait and args.wait > 0:
         response = client.take(
-            name, space, wait=args.wait,
+            identifier, certificate, wait=args.wait,
             auth_user=auth_user,
             auth_password=auth_password)
     else:
         response = client.take(
-            name, space,
+            identifier, certificate,
             auth_user=auth_user,
             auth_password=auth_password)
 
@@ -470,7 +447,7 @@ def do_take(args):
 
 
 def do_delete(args):
-    name = args.name
+    identifier = args.identifier
 
     url = _get_url(args)
     keyfile = _get_keyfile(args)
@@ -480,12 +457,12 @@ def do_delete(args):
 
     if args.wait and args.wait > 0:
         response = client.delete(
-            name, wait=args.wait,
+            identifier, wait=args.wait,
             auth_user=auth_user,
             auth_password=auth_password)
     else:
         response = client.delete(
-            name, auth_user=auth_user,
+            identifier, auth_user=auth_user,
             auth_password=auth_password)
 
     print("Response: {}".format(response))
@@ -531,8 +508,8 @@ def main(prog_name=os.path.basename(sys.argv[0]), args=None):
         do_list(args)
     elif args.command == 'show':
         do_show(args)
-    elif args.command == 'take':
-        do_take(args)
+    elif args.command == 'edit':
+        do_edit(args)
     elif args.command == 'delete':
         do_delete(args)
     else:
