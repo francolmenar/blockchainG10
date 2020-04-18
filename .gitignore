@@ -43,3 +43,5 @@
 /sawtooth_signing/**/__pycache__/
 
 *.batch
+
+/**/__pycache__/
