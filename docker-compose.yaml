@@ -564,15 +564,3 @@ services:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
 
-# ----------- DEVMODE RUST ----------- #
-
-  devmode-rust:
-    image: hyperledger/sawtooth-devmode-engine-rust:nightly
-    container_name: sawtooth-devmode-engine-rust
-    depends_on:
-      - validator-0
-    command: |
-      bash -c "
-        devmode-engine-rust -v --connect tcp://validator-0:5050
-      "
-    stop_signal: SIGKILL
