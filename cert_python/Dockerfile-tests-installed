@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# docker build -f examples/cert_python/Dockerfile-installed-bionic -t sawtooth-cert-tp-python .
+# docker build -f cert_python/Dockerfile-installed -t sawtooth-cert-tp-python .
 
 # -------------=== python sdk build ===-------------
 
@@ -41,9 +41,7 @@ RUN echo "deb http://repo.sawtooth.me/ubuntu/ci bionic universe" >> /etc/apt/sou
 
 COPY . /project
 
-RUN dpkg -i /tmp/python3-sawtooth-*.deb || true \
- && apt-get -f -y install \
- && /project/bin/protogen \
+RUN /project/bin/protogen \
  && cd /project/ \
  && if [ -d "debian" ]; then rm -rf debian; fi \
  && python3 setup.py clean --all \
@@ -51,9 +49,9 @@ RUN dpkg -i /tmp/python3-sawtooth-*.deb || true \
  && if [ -d "packaging/ubuntu" ]; then cp -R packaging/ubuntu/* debian/; fi \
  && dpkg-buildpackage -b -rfakeroot -us -uc
 
-# -------------=== python cert tp build ===-------------
+# -------------=== python cert tests build ===-------------
 
-FROM ubuntu:bionic as python-cert-tp-builder
+FROM ubuntu:bionic as python-cert-tests-builder
 
 RUN apt-get update \
  && apt-get install gnupg -y
@@ -81,24 +79,25 @@ COPY . /project
 RUN dpkg -i /tmp/python3-sawtooth-*.deb || true \
  && apt-get -f -y install \
  && /project/bin/protogen \
- && cd /project/examples/cert_python/ \
+ && cd /project/cert_python/ \
+ && export ST_VERSION=$(../../bin/get_version) \
+ && rm setup.py \
+ && mv setup_tests.py setup.py \
  && if [ -d "debian" ]; then rm -rf debian; fi \
  && python3 setup.py clean --all \
  && python3 setup.py --command-packages=stdeb.command debianize \
  && if [ -d "packaging/ubuntu" ]; then cp -R packaging/ubuntu/* debian/; fi \
  && dpkg-buildpackage -b -rfakeroot -us -uc
 
- # -------------=== python-cert-tp docker build ===-------------
+ # -------------=== python-cert-tp-tests docker build ===-------------
 FROM ubuntu:bionic
 
 RUN apt-get update \
- && apt-get install -y \
- gnupg \
- systemd
+ && apt-get install gnupg -y
 
 COPY --from=sawtooth-sdk-python-builder /python3-sawtooth-sdk*.deb /tmp
 
-COPY --from=python-cert-tp-builder /project/examples/python3-sawtooth-cert*.deb /tmp
+COPY --from=python-cert-tests-builder /project/python3-sawtooth-cert*.deb /tmp
 
 RUN echo "deb http://repo.sawtooth.me/ubuntu/ci bionic universe" >> /etc/apt/sources.list \
  && (apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD \

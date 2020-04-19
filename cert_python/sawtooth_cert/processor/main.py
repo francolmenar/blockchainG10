@@ -25,13 +25,13 @@ from sawtooth_sdk.processor.log import log_configuration
 from sawtooth_sdk.processor.config import get_log_config
 from sawtooth_sdk.processor.config import get_log_dir
 from sawtooth_sdk.processor.config import get_config_dir
-from examples.cert_python.sawtooth_cert.processor.handler import CertTransactionHandler
-from examples.cert_python.sawtooth_cert.processor.config.cert import CERTConfig
-from examples.cert_python.sawtooth_cert.processor.config.cert import \
+from cert_python.sawtooth_cert.processor.handler import CertTransactionHandler
+from cert_python.sawtooth_cert.processor.config.cert import CERTConfig
+from cert_python.sawtooth_cert.processor.config.cert import \
     load_default_cert_config
-from examples.cert_python.sawtooth_cert.processor.config.cert import \
+from cert_python.sawtooth_cert.processor.config.cert import \
     load_toml_cert_config
-from examples.cert_python.sawtooth_cert.processor.config.cert import \
+from cert_python.sawtooth_cert.processor.config.cert import \
     merge_cert_config
 
 DISTRIBUTION_NAME = 'sawtooth-cert'

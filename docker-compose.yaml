@@ -30,7 +30,7 @@ services:
   cert-tp-python:
     build:
       context: .
-      dockerfile: examples/cert_python/Dockerfile
+      dockerfile: cert_python/Dockerfile
       args:
         - http_proxy
         - https_proxy

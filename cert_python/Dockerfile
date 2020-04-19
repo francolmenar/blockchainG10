@@ -52,6 +52,6 @@ WORKDIR /project/sawtooth-sdk-python
 
 CMD echo "\033[0;32m--- Building cert-tp-python ---\n\033[0m" \
  && bin/protogen \
- && cd examples/cert_python \
+ && cd cert_python \
  && python3 setup.py clean --all \
  && python3 setup.py build
