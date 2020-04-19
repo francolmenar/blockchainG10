@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>Starter Template - Materialize</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body>
+  <nav class="light-blue lighten-1" role="navigation">
+    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Secure Certificates</a>
+      <ul class="right hide-on-med-and-down tabs">
+        <li class="tab"><a href="#tab-home">Home</a></li>
+        <li class="tab"><a href="#tab-issue">Issue a certificate</a></li>
+        <li class="tab"><a href="#tab-certificates">See certificates</a></li>
+        <li class="tab"><a href="#tab-settings">Settings</a></li>
+      </ul>
+
+      <ul id="nav-mobile" class="sidenav">
+        <li><a class="tab-activate" href="#tab-home">Home</a></li>
+        <li><a class="tab-activate" href="#tab-issue">Issue a certificate</a></li>
+        <li><a class="tab-activate" href="#tab-certificates">See certificates</a></li>
+        <li><a class="tab-activate" href="#tab-settings">Settings</a></li>
+      </ul>
+      <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>
+  <main>
+    <div class="section no-pad-bot" id="index-banner">
+      <div class="container">
+        <div id="tab-content">
+          <div id="tab-home">
+            <br><br>
+            <h1 class="header center orange-text align-center">Welcome to Secure Certificates</h1>
+            <div class="row center">
+              <h5 class="header col s12 light align-center">A modern solution for certificate issuing, based on the blockchain</h5>
+            </div>
+            <div class="row center valign-wrapper">
+              <a href="#tab-certificates"
+                 class="btn-large waves-effect waves-light orange col s5 l3 tab-activate">
+                 See ceritficates
+              </a>
+              <h6 class="col s2 valign-center">OR</h6>
+              <a href="#tab-issue"
+                 class="btn-large waves-effect waves-light orange col s5 l3 tab-activate">
+                 Issue a certificate
+              </a>
+            </div>
+            <br><br>
+          </div>
+          <div id="tab-settings">
+            <br><br>
+            <h2 class="header center orange-text">Settings</h2>
+            <div class="row center">
+              <form class="col s12">
+                <div class="row">
+                  <div class="input-field col s6">
+                    <input placeholder="http://" id="api-url" type="text"
+                           class="validate" value="http://192.168.1.109:8008/">
+                    <label for="api-url">REST-API URL</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <input placeholder="http://localhost:8080/" id="proxy-url"
+                           type="text" class="validate"
+                           value="http://localhost:8080/">
+                    <label for="proxy-url">Proxy URL</label>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div id="tab-issue">
+            <br><br>
+            <h2 class="header center orange-text">Issue a new certificate</h2>
+            <div class="row center">
+              <form class="col s12" id="issue-form">
+                <div class="row">
+                  <div class="input-field col s6">
+                    <input id="issuedName" name="issuedName" type="text"
+                           class="validate">
+                    <label for="issuedName">Student complete name</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <input placeholder="Bachelor/Master in" id="certificateName"
+                           name="certificateName" type="text" class="validate">
+                    <label for="certificateName">Certificate name</label>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="input-field col s6">
+                    <input placeholder="dd/mm/yyyy" id="dateIssued" name="dateIssued"
+                           type="text" class="datepicker">
+                    <label for="dateIssued">Issue date</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <input placeholder="dd/mm/yyyy" id="dateExpired"
+                           name="dateExpired" type="text" class="datepicker"
+                           value="-1">
+                    <label for="dateExpired">Expiring date</label>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="input-field col s6">
+                    <select id="level" name="level">
+                      <option value="1">Bachelor</option>
+                      <option value="2">Master</option>
+                      <option value="3">PHD</option>
+                    </select>
+                    <label>Level</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <input id="issuerName" name="issuerName" type="text"
+                           class="validate" value="University of Twente">
+                    <label for="issuerName">Issuer Name</label>
+                  </div>
+                </div>
+                <button class="btn btn-large waves-effect waves-light orange"
+                        type="submit" name="action" id="issue-btn">
+                  Issue
+                  <i class="material-icons right">send</i>
+                </button>
+              </form>
+              <!-- Modal Structure -->
+              <div id="issue-modal" class="modal modal-fixed-footer">
+                <div class="modal-content">
+                 <h4 id="issue-modal-title">Sending certificate</h4>
+                 <div id="issue-modal-spinner">
+                   <div class="preloader-wrapper big active">
+                    <div class="spinner-layer spinner-blue-only">
+                      <div class="circle-clipper left">
+                        <div class="circle"></div>
+                      </div><div class="gap-patch">
+                        <div class="circle"></div>
+                      </div><div class="circle-clipper right">
+                        <div class="circle"></div>
+                      </div>
+                    </div>
+                  </div>
+                 </div>
+                 <div id="issue-modal-success">
+                   <h6 class="green-text">Certificate inserted into the blockchain!</h6>
+                   <textarea id="issue-detail" class="materialize-textarea" readonly></textarea>
+                   <label for="issue-detail">Transaction detail</label>
+                 </div>
+                 <div id="issue-modal-fail">
+                   <h6 class="red-text">Error in sending the certificate!</h6>
+                   <textarea id="issue-error-detail" class="materialize-textarea" readonly></textarea>
+                   <label for="textarea1">Error detail</label>
+                 </div>
+                </div>
+                <div class="modal-footer">
+                 <a href="#!" id="modal-close"
+                    class="modal-close waves-effect waves-green btn-flat">
+                   Close
+                 </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab-certificates">
+            <br><br>
+            <h2 class="header center orange-text">List of certificates</h2>
+            <div class="right">
+              <button class="btn orange" id="refresh-list">
+                <i class="material-icons left">autorenew</i>
+                Refresh
+              </button>
+            </div>
+            <div class="row center">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student name</th>
+                    <th>Certificate Name</th>
+                    <th>Issue Date</th>
+                    <th>Expire Date</th>
+                    <th>Level</th>
+                    <th>Issuer</th>
+                    <th>More Details</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-list">
+                </tbody>
+              </table>
+              <div id="cert-detail-modals">
+                <div id="details-1" class="modal modal-fixed-footer">
+                  <div class="modal-content">
+                   <h4>Transaction Details</h4>
+                   <div>
+                     <textarea class="materialize-textarea" readonly></textarea>
+                     <label>Transaction detail</label>
+                   </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-footer orange">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Secure Certificates</h5>
+          <p class="grey-text text-lighten-4">The goal of this project is to create a system that people can use to share certificates between entities, specially focus on universities. Thus eliminating the need of the third entity to do the verification process.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+      Made with <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="js/materialize.js"></script>
+  <script src="js/init.js"></script>
+  <script src="dist/main.js"></script>
+  </body>
+</html>
