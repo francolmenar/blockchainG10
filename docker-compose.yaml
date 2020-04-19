@@ -27,30 +27,6 @@ services:
       "
     stop_signal: SIGKILL
 
-  xo-tp-python:
-    build:
-      context: .
-      dockerfile: examples/xo_python/Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: xo-tp-python-local:${ISOLATION_ID}
-    volumes:
-      - ./:/project/sawtooth-sdk-python
-    container_name: xo-tp-python-local
-    depends_on:
-      - validator
-    command: |
-      bash -c "
-        bin/protogen
-        cd examples/xo_python
-        python3 setup.py clean --all
-        python3 setup.py build
-        xo-tp-python -vv -C tcp://validator:4004
-      "
-    stop_signal: SIGKILL
-
   cert-tp-python:
     build:
       context: .
@@ -87,7 +63,6 @@ services:
       "
     stop_signal: SIGKILL
 
-
   validator:
     image: hyperledger/sawtooth-validator:nightly
     container_name: sawtooth-validator
@@ -117,8 +92,6 @@ services:
             --bind consensus:tcp://eth0:5050 \
       "
     stop_signal: SIGKILL
-
-
   rest-api:
     image: hyperledger/sawtooth-rest-api:nightly
     container_name: sawtooth-rest-api
@@ -131,7 +104,6 @@ services:
         sawtooth-rest-api -v --connect tcp://validator:4004 --bind rest-api:8008
       "
     stop_signal: SIGKILL
-
 
   devmode-rust:
     image: hyperledger/sawtooth-devmode-engine-rust:nightly
