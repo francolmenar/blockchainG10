@@ -1,12 +1,31 @@
 let {TransactionHeader, Transaction, BatchHeader, Batch, BatchList} = require('sawtooth-sdk/protobuf');
-let {createContext, CryptoFactory} = require('sawtooth-sdk/signing')
-let {createHash} = require('crypto')
-let cbor = require('cbor')
+let {createContext, CryptoFactory} = require('sawtooth-sdk/signing');
+let {Secp256k1PrivateKey}  = require('sawtooth-sdk/signing/secp256k1');
+let {createHash} = require('crypto');
+let cbor = require('cbor');
+const context = createContext('secp256k1');
 
-function getSigner () {
-  var context = createContext('secp256k1')
-  let privateKey = context.newRandomPrivateKey()
-  return new CryptoFactory(context).newSigner(privateKey)
+function generatePrivateKey(hexvalue) {
+  if (!hexvalue)
+    hexvalue = window.crypto.getRandomValues(new Uint8Array(32));
+
+  return new Secp256k1PrivateKey(hexvalue);
+}
+
+function getPrivateKey() {
+  let privateKeyText = $("#private-key").val();
+  if (!privateKeyText) {
+    let privateKey = generatePrivateKey();
+    privateKeyText = a2h(privateKey.asBytes());
+    $("#private-key").val(privateKeyText);
+  }
+  return Secp256k1PrivateKey.fromHex(privateKeyText);
+}
+
+function getSigner (privateKey) {
+  if (!privateKey)
+    privateKey = getPrivateKey();
+  return new CryptoFactory(context).newSigner(privateKey);
 }
 
 // Takes as input a payload and a signer and return a batchListBytes to send
@@ -73,13 +92,13 @@ function checkBatchSubmission(link, success, error) {
   $.get(url, function(r){
     let status = r.data[0].status;
 
-    if (status == 'INVALID')
+    if (status === 'INVALID')
       error(r.data[0].invalid_transactions[0].message);
-    if (status == 'COMMITTED') {
+    if (status === 'COMMITTED') {
       let batch_id = r.data[0].id;
       getTransactionInBatch(batch_id, getTransactionData, success);
     }
-    if (status == 'PENDING') {
+    if (status === 'PENDING') {
       console.log(status);
       setTimeout(function() {checkBatchSubmission(link, success, error)}, 1000);
     }
@@ -141,6 +160,28 @@ function encodeUTF8(string) {
   return new Uint8Array(arr);
 }
 
+function a2h (bytes) {
+  let string = '';
+  for (var i = 0; i < bytes.length; i++) {
+    if (bytes[i] < 16) string += '0';
+    string += bytes[i].toString(16);
+  }
+  return string;
+}
+/*
+================================================================================
+================================================================================
+================================Settings========================================
+================================================================================
+================================================================================
+*/
+$('#new-private-key').on('click', function(event) {
+  event.preventDefault();
+  let privateKey = generatePrivateKey();
+  console.log(a2h(privateKey.asBytes()));
+  let privateKeyText = a2h(privateKey.asBytes());
+  $("#private-key").val(privateKeyText);
+});
 /*
 ================================================================================
 ================================================================================
@@ -216,7 +257,23 @@ $('#issue-form').on('submit', function(event) {
 ================================================================================
 ================================================================================
 */
+function verifyTransaction(trustedKeys, publicKey, name) {
+  if (publicKey in trustedKeys && trustedKeys[publicKey] == name)
+    return true;
+  else
+    return false;
+}
+
 function refreshTransactionList() {
+  // Load trusted Keys
+  let trustedKeys = {};
+  try {
+    trustedKeys = JSON.parse($("#trusted-keys").val());
+  }
+  catch {
+    M.toast({html: 'Error while parsing the trusted keys. Please fix your settings'})
+  }
+
   // Remove existing rows
   $("#tbody-list tr").remove();
 
@@ -231,12 +288,12 @@ function refreshTransactionList() {
 
         let payload = atob(transaction.payload);
         let certificate = JSON.parse(atob(payload.split(',')[2]));
+        let transaction_text = JSON.stringify(transaction, null, 4);
 
         let id = "modal-detail-" + transaction.header_signature;
-        console.log(id);
 
-        let transaction_text = JSON.stringify(transaction, null, 4);
-        console.log(transaction_text);
+        let verified = verifyTransaction(trustedKeys, pub_key, certificate.issuerName);
+
         let row = "<tr>" +
                   "<td>" + certificate.issuedName + "</td>" +
                   "<td>" + certificate.certificateName + "</td>" +
@@ -244,7 +301,8 @@ function refreshTransactionList() {
                   "<td>" + certificate.dateExpired + "</td>" +
                   "<td>" + (certificate.level == 1 ? "Bachelor" : certificate.level == 2 ? "Master" : "PHD") + "</td>" +
                   "<td>" + certificate.issuerName + "</td>" +
-                  "<td class=\"center\"><button class=\"btn-floating orange waves-effect waves-light modal-trigger\" data-target=\"" + id + "\"><i class=\"material-icons\">add</i></button></td>" +
+                  "<td><i class=\"material-icons\">" + (verified ? "done" : "close") + "</i></td>" +
+                  "<td class=\"right\"><button class=\"btn-floating orange waves-effect waves-light modal-trigger\" data-target=\"" + id + "\"><i class=\"material-icons\">add</i></button></td>" +
                   "</tr>";
         $("#tbody-list").append(row);
 

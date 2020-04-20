@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>Starter Template - Materialize</title>
+  <title>Secure Certificates</title>
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -58,16 +58,37 @@
             <div class="row center">
               <form class="col s12">
                 <div class="row">
-                  <div class="input-field col s6">
+                  <div class="input-field col s12 m6">
                     <input placeholder="http://" id="api-url" type="text"
-                           class="validate" value="http://localhost:8008/">
+                           class="validate" value="http://localhost:8000/">
                     <label for="api-url">REST-API URL</label>
                   </div>
-                  <div class="input-field col s6">
+                  <div class="input-field col s12 m6">
                     <input placeholder="http://localhost:8080/" id="proxy-url"
                            type="text" class="validate"
                            value="http://localhost:8080/">
                     <label for="proxy-url">Proxy URL</label>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="input-field col s8 m6">
+                    <input placeholder="Base64 encoded" id="private-key" type="text"
+                           class="validate">
+                    <label for="api-url">Private Key</label>
+                  </div>
+                  <div class="input-field col s4 m6">
+                    <button class="btn orange" id="new-private-key">
+                      Generate new random key
+                    </button>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="input-field col s12">
+                    <textarea placeholder='{ "PublicKey": "Name" }'
+                              id="trusted-keys" class="materialize-textarea">
+                      { }
+                    </textarea>
+                    <label for="trusted-keys">Trusted Public Keys</label>
                   </div>
                 </div>
               </form>
@@ -180,6 +201,7 @@
                     <th>Expire Date</th>
                     <th>Level</th>
                     <th>Issuer</th>
+                    <th>Verified<th>
                     <th>More Details</th>
                   </tr>
                 </thead>
@@ -225,6 +247,6 @@
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="js/materialize.js"></script>
   <script src="js/init.js"></script>
-  <script src="dist/main.js"></script>
+  <script src="js/main.js"></script>
   </body>
 </html>
