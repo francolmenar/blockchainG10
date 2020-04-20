@@ -110,9 +110,9 @@ class CertClient:
 
     def list(self, auth_user=None, auth_password=None):
         """
-        I'm not sure what it's happening, Some request is sent
+        Print all the certificates
         """
-        cert_prefix = self._get_prefix()  # Get the Cert Prefix, Not sure if we need it for us
+        cert_prefix = self._get_prefix()  # Get the Cert Prefix
 
         result = self._send_request(
             "state?address={}".format(cert_prefix),
@@ -147,12 +147,9 @@ class CertClient:
             return None
 
     def _get_status(self, batch_id, wait, auth_user=None, auth_password=None):
-        """
-        I'm not sure what it's happening, Some request is sent
-        """
         try:
             result = self._send_request(
-                'batch_statuses?id={}&wait={}'.format(batch_id, wait),  # That URL could be set as a constant
+                'batch_statuses?id={}&wait={}'.format(batch_id, wait),
                 auth_user=auth_user,
                 auth_password=auth_password)  # Send a request
             return yaml.safe_load(result)['data'][0]['status']
@@ -162,13 +159,13 @@ class CertClient:
     @staticmethod
     def _get_prefix():
         """
-        Get the prefix?????????
+        Get the prefix
         """
         return _sha512('cert'.encode('utf-8'))[0:6]
 
     def _get_address(self, identifier):
         """
-        Get the total address:     Prefix + Game Addr
+        Get the total address:     Prefix + Cert Addr
         """
         cert_prefix = self._get_prefix()
         certificate_address = _sha512(identifier.encode('utf-8'))[0:64]
@@ -249,7 +246,7 @@ class CertClient:
         # Set the id of the Batch to the sign of the first transaction
         batch_id = batch_list.batches[0].header_signature
 
-        if wait and wait > 0:  # ???????
+        if wait and wait > 0:
             wait_time = 0
             start_time = time.time()
             response = self._send_request(
@@ -257,7 +254,7 @@ class CertClient:
                 'application/octet-stream',
                 auth_user=auth_user,
                 auth_password=auth_password)  # Send the Request for the list of batches
-            while wait_time < wait:  # ???????
+            while wait_time < wait:
                 status = self._get_status(
                     batch_id,
                     wait - int(wait_time),
