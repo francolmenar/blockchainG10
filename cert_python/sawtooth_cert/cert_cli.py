@@ -370,10 +370,10 @@ def do_list(args):
     ]
 
     if certificate_list is not None:
-        fmt = "%-15s %-15.15s %-15.15s %-9s %s"
-        print(fmt % ('GAME', 'PLAYER 1', 'PLAYER 2', 'BOARD', 'STATE'))
+        fmt = "%-15s %-15s %-15s %-9s %-15.15s %s"
+        print(fmt % ('Full Name', 'Issue Date', 'Expire date', 'level', 'Certificate', 'Issuing Entity'))
         for certificate in certificate_list:
-            print(certificate)
+            print(fmt % (certificate[1], certificate[2], certificate[3], certificate[4], certificate[5], certificate[6]))
     else:
         raise CertException("Could not retrieve game listing.")
 
