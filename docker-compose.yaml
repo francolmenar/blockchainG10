@@ -152,7 +152,7 @@ services:
     command: |
       bash -c "
         bin/protogen
-        cd examples/cert_python
+        cd cert_python
         python3 setup.py clean --all
         python3 setup.py build
         cert-tp-python -vv -C tcp://validator-0:4000
@@ -263,7 +263,7 @@ services:
     command: |
       bash -c "
         bin/protogen
-        cd examples/cert_python
+        cd cert_python
         python3 setup.py clean --all
         python3 setup.py build
         cert-tp-python -vv -C tcp://validator-1:4001
@@ -375,7 +375,7 @@ services:
     command: |
       bash -c "
         bin/protogen
-        cd examples/cert_python
+        cd cert_python
         python3 setup.py clean --all
         python3 setup.py build
         cert-tp-python -vv -C tcp://validator-2:4002
@@ -487,7 +487,7 @@ services:
     command: |
       bash -c "
         bin/protogen
-        cd examples/cert_python
+        cd cert_python
         python3 setup.py clean --all
         python3 setup.py build
         cert-tp-python -vv -C tcp://validator-3:4003
@@ -598,7 +598,7 @@ services:
     command: |
       bash -c "
         bin/protogen
-        cd examples/cert_python
+        cd cert_python
         python3 setup.py clean --all
         python3 setup.py build
         cert-tp-python -vv -C tcp://validator-4:4004
