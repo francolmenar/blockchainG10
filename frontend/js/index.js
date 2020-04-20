@@ -178,7 +178,6 @@ function a2h (bytes) {
 $('#new-private-key').on('click', function(event) {
   event.preventDefault();
   let privateKey = generatePrivateKey();
-  console.log(a2h(privateKey.asBytes()));
   let privateKeyText = a2h(privateKey.asBytes());
   $("#private-key").val(privateKeyText);
 });
@@ -191,18 +190,18 @@ $('#new-private-key').on('click', function(event) {
 */
 
 function issueCertificate(callback, error_callback) {
-  let action = 'create'
+  let action = 'create';
   let identifier = $('#issuedName').val() + $('#issuerName').val() + $('#level').val();
   let certificate = getFormData($('#issue-form'));
 
   let payload = action + ',' + identifier + ',' + btoa(certificate);
-  let payloadBytes = cbor.encode(payload);
+  let payloadBytes = encodeUTF8(payload);
 
   console.log(payloadBytes, encodeUTF8(payloadBytes), getCertAddress(identifier));
 
-  batchBytes = compileTransaction(payloadBytes.slice(2), getCertAddress(identifier), getSigner());
+  let batchBytes = compileTransaction(payloadBytes, getCertAddress(identifier), getSigner());
 
-  var url = getURL('batches');
+  let url = getURL('batches');
 
   sendBatchList(batchBytes, url, function(r) {
     checkBatchSubmission(
