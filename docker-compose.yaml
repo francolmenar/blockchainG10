@@ -65,7 +65,7 @@ services:
           --bind component:tcp://0.0.0.0:4000 \
           --bind consensus:tcp://0.0.0.0:5050 \
           --peering static \
-          --endpoint tcp://47.112.221.9:8800 \
+          --endpoint tcp://validator-0:8800 \
           --scheduler parallel \
           --network-auth trust
     \""
@@ -85,7 +85,7 @@ services:
     command: |
       bash -c "
         sawtooth-rest-api -vvvv \
-          --connect tcp://47.112.221.9:4000 \
+          --connect tcp://validator-0:4000 \
           --bind 0.0.0.0:8000
       "
     stop_signal: SIGKILL
@@ -97,7 +97,7 @@ services:
       - 4000
     depends_on:
       - validator-0
-    command: settings-tp -vvv -C tcp://47.112.221.9:4000
+    command: settings-tp -vvv -C tcp://validator-0:4000
     stop_signal: SIGKILL
 
   poet-engine-0:
@@ -120,7 +120,7 @@ services:
         while [ ! -f /poet-shared/validator-0/keys/validator.priv ]; do sleep 1; done && \
         cp -a /poet-shared/validator-0/keys /etc/sawtooth && \
         poet registration create -k /etc/sawtooth/keys/validator.priv -o /poet-shared/poet.batch && \
-        poet-engine -C tcp://47.112.221.9:5050 --component tcp://47.112.221.9:4000 \
+        poet-engine -C tcp://validator-0:5050 --component tcp://validator-0:4000 \
     \""
 
   poet-validator-registry-tp-0:
@@ -130,7 +130,7 @@ services:
       - 4000
     depends_on:
       - validator-0
-    command: poet-validator-registry-tp -C tcp://47.112.221.9:4000
+    command: poet-validator-registry-tp -C tcp://validator-0:4000
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
@@ -179,11 +179,12 @@ services:
         mkdir -p /poet-shared/validator-1 || true && \
         cp -a /etc/sawtooth/keys /poet-shared/validator-1/ && \
         sawtooth-validator -vvv \
-            --bind network:tcp://0.0.0.1:8801 \
-            --bind component:tcp://0.0.0.1:4001 \
-            --bind consensus:tcp://0.0.0.1:5051 \
-            --endpoint tcp://47.107.70.181:8801 \
-            --peers tcp://47.112.221.9:8800 \
+            --bind network:tcp://0.0.0.0:8801 \
+            --bind component:tcp://0.0.0.0:4001 \
+            --bind consensus:tcp://0.0.0.0:5051 \
+            --peering static \
+            --endpoint tcp://validator-1:8801 \
+            --peers tcp://validator-0:8800 \
             --scheduler parallel \
             --network-auth trust
       "
@@ -203,8 +204,8 @@ services:
     command: |
       bash -c "
         sawtooth-rest-api -vvv\
-          --connect tcp://47.107.70.181:4001 \
-          --bind 0.0.0.1:8001
+          --connect tcp://validator-1:4001 \
+          --bind 0.0.0.0:8001
       "
     stop_signal: SIGKILL
     depends_on:
@@ -215,7 +216,7 @@ services:
     container_name: sawtooth-settings-tp-default-1
     expose:
       - 4001
-    command: settings-tp -vv -C tcp://47.107.70.181:4001
+    command: settings-tp -vv -C tcp://validator-1:4001
     stop_signal: SIGKILL
     depends_on:
       - validator-1
@@ -230,7 +231,7 @@ services:
     command: "bash -c \"\
         while [ ! -f /poet-shared/validator-1/keys/validator.priv ]; do sleep 1; done && \
         cp -a /poet-shared/validator-1/keys /etc/sawtooth && \
-        poet-engine -C tcp://47.107.70.181:5051 --component tcp://47.107.70.181:4001 \
+        poet-engine -C tcp://validator-1:5051 --component tcp://validator-1:4001 \
     \""
 
   poet-validator-registry-tp-1:
@@ -240,7 +241,7 @@ services:
       - 4001
     depends_on:
       - validator-1
-    command: poet-validator-registry-tp -C tcp://47.107.70.181:4001
+    command: poet-validator-registry-tp -C tcp://validator-1:4001
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
