@@ -64,7 +64,7 @@ services:
           --bind network:tcp://0.0.0.0:8800 \
           --bind component:tcp://0.0.0.0:4000 \
           --bind consensus:tcp://0.0.0.0:5050 \
-          --peering dynamic \
+          --peering static \
           --endpoint tcp://47.112.221.9:8800 \
           --scheduler parallel \
           --network-auth trust
@@ -135,6 +135,30 @@ services:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
 
+  cert-tp-python-0:
+    build:
+      context: .
+      dockerfile: cert_python/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: cert-tp-python-local:${ISOLATION_ID}
+    volumes:
+      - ./:/project/sawtooth-sdk-python
+    container_name: cert-tp-python-local-0
+    depends_on:
+      - validator-0
+    command: |
+      bash -c "
+        bin/protogen
+        cd examples/cert_python
+        python3 setup.py clean --all
+        python3 setup.py build
+        cert-tp-python -vv -C tcp://validator-0:4000
+      "
+    stop_signal: SIGKILL
+
 
   validator-1:
     image: hyperledger/sawtooth-validator:1.0
@@ -159,9 +183,8 @@ services:
             --bind component:tcp://0.0.0.1:4001 \
             --bind consensus:tcp://0.0.0.1:5051 \
             --endpoint tcp://47.107.70.181:8801 \
-            --peering dynamic \
-            --seeds tcp://47.112.221.9:8800 \
-            --scheduler serial \
+            --peers tcp://47.112.221.9:8800 \
+            --scheduler parallel \
             --network-auth trust
       "
     environment:
@@ -220,4 +243,28 @@ services:
     command: poet-validator-registry-tp -C tcp://47.107.70.181:4001
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
+    stop_signal: SIGKILL
+
+  cert-tp-python-1:
+    build:
+      context: .
+      dockerfile: cert_python/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: cert-tp-python-local:${ISOLATION_ID}
+    volumes:
+      - ./:/project/sawtooth-sdk-python
+    container_name: cert-tp-python-local-1
+    depends_on:
+      - validator-1
+    command: |
+      bash -c "
+        bin/protogen
+        cd examples/cert_python
+        python3 setup.py clean --all
+        python3 setup.py build
+        cert-tp-python -vv -C tcp://validator-1:4001
+      "
     stop_signal: SIGKILL
