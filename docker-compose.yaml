@@ -151,6 +151,10 @@ services:
       - validator-0
     command: |
       bash -c "
+        mkdir /root/.sawtooth
+        mkdir /root/.sawtooth/keys
+        echo "b9714c034b312ba89cc4a9221b0e79f42eb304b4e10616c5461fff6b6451b0e0" > /root/.sawtooth/keys/root.priv
+        echo "02a2af0b6fd532396bf6766e65522528b5fdb1f5bdd76ee8ce7f0d8416154ee7f8" > /root/.sawtooth/keys/root.pub
         bin/protogen
         cd cert_python
         python3 setup.py clean --all
